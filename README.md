@@ -146,15 +146,16 @@ to act funny (pausing the main thread), but, you will get a complete stack trace
 
 Part of the Unity3d Foundation toolkit. A collection of utilities for making high quality data driven games. http://unity3dFoundation.com
 
-- **Console** : A in game terminal for debugging !
+- [**Tasks**](https://github.com/NVentimiglia/Unity3d-Async-Task-) : An async task library for doing background work or extending coroutines with return results.
 
-- **Tasks** : An async task library for doing background work or extending coroutines with return results.
+
+- [**Messenger**](https://github.com/NVentimiglia/Unity3d-Event-Messenger) : Listener pattern. A message broker for relaying events in a loosely coupled way. Supports auto subscription via the [Subscribe] annotation.
+
+- [**Terminal**](https://github.com/NVentimiglia/Unity3d-uGUI-Terminal): A in game terminal for debugging !
+
+- [**Injector**](https://github.com/NVentimiglia/Unity3d-Service-Injector): Service Injector for resolving services and other components. Supports auto injection using the [Inject] annotation
 
 - **Localization** : Supports in editor translation, multiple files and automatic translation of scripts using the [Localized] annotation.
-
-- **Messenger** : Listener pattern. A message broker for relaying events in a loosely coupled way. Supports auto subscription via the [Subscribe] annotation.
-
-- **Injector** : Service Injector for resolving services and other components. Supports auto injection using the [Inject] annotation
 
 - **DataBinding** : For MVVM / MVC style databinding. Supports the new uGUI ui library.
 
