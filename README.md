@@ -9,7 +9,7 @@ A utility library inspired by the Task Parallelism Library, but made especially 
  - Tasks support running on the main thread, background thread or as coroutines.
  - Tasks support return results. 
  - Wait for your tasks to complete in a coroutine or as a thread blocking call
- - Grace full exception handling (IsFaulted ?)
+ - Graceful exception handling (IsFaulted ?)
  - Works on Windows, Mac, Ios, Android
  - May have issues on WebGL as it does not support threading (but coroutine should work fine.)
 
