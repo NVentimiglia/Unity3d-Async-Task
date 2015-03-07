@@ -2,7 +2,7 @@
 
 Nicholas Ventimiglia | AvariceOnline.com
 
-## Terminal for in game debugging
+## Unity3d Async Task Library
 
 A utility library inspired by Task Parallelism Library, but made especially for Unity3d. Supports running and waiting on actions running in background threads. Supports running and waiting on coroutines. Supports coroutines with return results and exception messages !
 
