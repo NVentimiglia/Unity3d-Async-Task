@@ -4,7 +4,7 @@ Nicholas Ventimiglia | AvariceOnline.com
 
 ## Unity3d Async Task Library
 
-A utility library inspired by Task Parallelism Library, but made especially for Unity3d. Supports running and waiting on actions running in background threads. Supports running and waiting on coroutines. Supports coroutines with return results and exception messages !
+A utility library inspired by the Task Parallelism Library, but made especially for Unity3d. Supports running and waiting on actions running in background threads. Supports running and waiting on coroutines. Supports coroutines with return results and exception messages !
 
  - Tasks support running on the main thread, background thread or as coroutines.
  - Tasks support return results. 
