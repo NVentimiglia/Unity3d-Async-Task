@@ -104,7 +104,7 @@ public class AccountMenu : Monobehaviour    {
 }
 `````
 
-In the above example the AccountService would be returning a Task of some sort. That method be a action running in a background thread or a coroutine using WWW (the consumer doesn't really care).
+In the above example the AccountService would be returning a Task of some sort. Internally, it could be a action running in a background thread or a coroutine on the unity thread.
 
 `````c#
 public class AccountService     {
