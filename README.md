@@ -135,10 +135,13 @@ For instance if the method fails a sanity check I will return a custom task in t
 
 `````c#
 void Login(string username){
-	return new Task(TaskStrategy.Custom) { Status = TaskStatus.Faulted, Exception = new Exception("Invalid Username")};
+	return new Task(TaskStrategy.Custom) {
+		Status = TaskStatus.Faulted,
+		Exception = new Exception("Invalid Username")
+	};
 
-        // or extension method
-	Task.FailedTask("Invalid Username");
+	//or extension method
+	return Task.FailedTask("Invalid Username");
 }
 `````
     
