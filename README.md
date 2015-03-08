@@ -83,10 +83,10 @@ to act funny (pausing the main thread), but, you will get a complete stack trace
 
 // Assume running from a coroutine
 
-//Pass in an action, function, method or coroutine
+//Turn an action into a waitable background task
 var task = Task.Run(() =>
 {
-			//Debug.Log does not work in
+	//Debug.Log does not work in
 	Debug.Log("Sleeping...");
 	Task.Delay(2000);
 	Debug.Log("Slept");
@@ -102,8 +102,7 @@ if(task.IsFaulted)
 //Valid if this method returned something
 //var result = task.Result;
 
-		
-// Run a Task on the main thread
+// Run a Task on the main thread (great for networking!)
 Task.RunOnMain(() =>
 {
 	Debug.Log("Sleeping...");
@@ -111,16 +110,6 @@ Task.RunOnMain(() =>
 	Debug.Log("Slept");
 });
         
-
-// Run a Task on a background thread
-Task.Run(() =>
-{
-	Debug.Log("("Sleeping...");
-	Task.Delay(2000);
-	Debug.Log("("Slept");
-});
-        
-
 // Run a coroutine as a tasks
 Task.RunCoroutine(RoutineFunction());
 
@@ -146,7 +135,7 @@ Task.Run(() =>
 	Debug.Log("Thread A Done");
 });     
 		
-// Run a coroutine with a task as the parameter        
+// Run a coroutine with a result   
 Task.RunCoroutine<string>(RoutineFunction());
 
 IEnumerator RoutineFunction(Task<string> task){
