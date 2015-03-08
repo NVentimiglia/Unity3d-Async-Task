@@ -127,6 +127,45 @@ public class AccountService     {
 }
 `````
 
+## Custom Strategy Example
+The Custom strategy is used when you want to return a task without wrapping a action or coroutine. Here are two examples
+
+#### Failed Sanity Check
+For instance if the method fails a sanity check I will return a custom task in the faulted state and set the exception message manually. I figure this is less overhead than spinning up a background thread and throwing it.
+
+`````c#
+void Login(string username){
+	return new Task(TaskStrategy.Custom) { Status = TaskStatus.Faulted, Exception = new Exception("Invalid Username")};
+
+        // or extension method
+	Task.FailedTask("Invalid Username");
+}
+`````
+    
+#### Returning a Task without wrapping a method 
+I also use the custom strategy when I need to return a task but the internal method uses an arbitrary callback - such as in the case of UnityNetworking.
+
+`````c#
+Task<bool> ConnectTask;
+void Awake(){
+	ConnectTask = new Task<bool>(TaskStrategy.Custom);
+}
+Task<bool> ConnectToServer(HostData username){
+        ConnectTask.State = TaskState.Running;
+	// Do Unity Connect Logic here
+	// Consumer will 'wait' untill this server fails/successes the task
+	return ConnectTask;
+}
+
+void OnConnectedToServer(){
+	ConnectTask.Result = true;
+	ConnectTask.State = TaskState.Success;
+}
+
+// todo fail and timeout for the connect task
+`````
+
+
 ## Kitchen Sink Examples
 
 ```c#
