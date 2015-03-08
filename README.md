@@ -81,8 +81,6 @@ to act funny (pausing the main thread), but, you will get a complete stack trace
 
 Tasks are long running processes,  so you should use tasks from a coroutine somewhere in your code. Just like the WWW class.
 
-When you pass an action or method into Task.Run that code that is passed in is run in the background. You can then wait for that task to complete (or throw) from your code.
-
 For example lets take a login task
 
 `````c#
@@ -106,7 +104,6 @@ public class AccountMenu : Monobehaviour    {
 }
 `````
 
-
 In the above example the AccountService would be returning a Task of some sort. That method be a action running in a background thread or a coroutine using WWW (the consumer doesn't really care).
 
 `````c#
@@ -115,7 +112,7 @@ public class AccountService     {
 	public Task<bool> Login(){
 		// run in background thread
 		return Task.Run(LoginInternal);
-		// or run in unty thread as a coroutine
+		// or run in unity thread as a coroutine
 		return Task<.RunCoroutine<bool>(LoginInternal2);
 	}
 	
