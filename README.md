@@ -77,7 +77,39 @@ to act funny (pausing the main thread), but, you will get a complete stack trace
 
 ````
 
-## Examples
+## Scenario Example
+
+Tasks are long running processes,  so you should use tasks from a coroutine somewhere in your code. Just like the WWW class.
+
+When you pass an action or method into Task.Run that code that is passed in is run in the background. You can then wait for that task to complete (or throw) from your code.
+
+For example lets take a login task
+
+`````c#
+
+public class AccountMenu : Monobehaviour    {
+	
+	// run on instance startup
+	IEnumerator Start(){
+		// returns a Task<bool>
+		var task = AccountService.Login();
+
+		// wait for the task to finish
+		yield return StartCoroutine(task.WaitRoutine());
+
+		if(task.IsFaulted)
+			// handle fault
+		else
+			// handle success
+
+	}
+}
+`````
+
+
+In the above example the AccountService would be returning a Task of some sort. That method be a action running in a background thread or a coroutine using WWW (the consumer doesn't really care).
+
+## Kitchen Sink Examples
 
 ```c#
 
