@@ -113,14 +113,14 @@ In the above example the AccountService would be returning a Task of some sort. 
 public class AccountService     {
 	
 	public Task<bool> Login(){
-	
+		// run in background thread
 		return Task.Run(LoginInternal);
-		// or
+		// or run in unty thread as a coroutine
 		return Task<.RunCoroutine<bool>(LoginInternal2);
 	}
 	
 	bool LoginInternal(){
-	// do work
+		// do work
 	}
 	
 	IEnumerator LoginInternal2(Task<bool> task){
