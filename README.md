@@ -49,6 +49,16 @@ as a way to populate the Result property. You may chain multiple continue with's
 The task manager is a monobehaviours which interfaces the task's with unity. It is responsible for executing on the main thread and running coroutines.
 You dont need to add this object to your scene, it is added automatically.
 
+####Exceptions
+To set the task to the faulted state in an action simply throw an exception. The exception will be saved in the Task.Exception property. For coroutines you will need to set the task state and exception manually (as exception handeling in coroutines is limmited.
+```c#
+		// Pass in an action, function, method or coroutine
+            	var task = Task.Run(() =>
+            	{
+            		throw new Exception("I am failure");
+            	});
+````
+
 ## Debugging
 
 I have a static flag to disable background threads. This will cause Unity
