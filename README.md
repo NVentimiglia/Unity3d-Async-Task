@@ -52,11 +52,11 @@ You dont need to add this object to your scene, it is added automatically.
 ####Exceptions
 To set the task to the faulted state in an action simply throw an exception. The exception will be saved in the Task.Exception property. For coroutines you will need to set the task state and exception manually (as exception handeling in coroutines is limmited.
 ```c#
-// Pass in an action, function, method or coroutine
-var task = Task.Run(() =>
-{
-	throw new Exception("I am failure");
-});
+		// Pass in an action, function, method or coroutine
+            	var task = Task.Run(() =>
+            	{
+            		throw new Exception("I am failure");
+            	});
 ````
 
 ## Debugging
@@ -80,76 +80,77 @@ to act funny (pausing the main thread), but, you will get a complete stack trace
 ## Examples
 
 ```c#
-IEnumerator HowToUse() {
-	
-	// Pass in an action, function, method or coroutine
-        var task = Task.Run(() =>
-        {
-		//Debug.Log does not work in
-                Debug.Log("Sleeping...");
-		Task.Delay(2000);
-		Debug.Log("Slept");
-        });
 
-	// wait for it
-        yield return StartCoroutine(task.WaitRoutine());
+// Assume running from a coroutine
 
-	// check exceptions
-	if(task.IsFaulted)
-		Debug.LogException(task.Exception)
+//Pass in an action, function, method or coroutine
+var task = Task.Run(() =>
+{
+			//Debug.Log does not work in
+	Debug.Log("Sleeping...");
+	Task.Delay(2000);
+	Debug.Log("Slept");
+});
 
-	//Valid if this method returned something
-	//var result = task.Result;
+//wait for it
+yield return StartCoroutine(task.WaitRoutine());
 
-	// Run a Task on the main thread
-        Task.RunOnMain(() =>
-        {
-            Debug.Log("Sleeping...");
-            Task.Delay(2000);
-            Debug.Log("Slept");
-        });
+// check exceptions
+if(task.IsFaulted)
+	Debug.LogException(task.Exception)
+
+//Valid if this method returned something
+//var result = task.Result;
+
+		
+// Run a Task on the main thread
+Task.RunOnMain(() =>
+{
+	Debug.Log("Sleeping...");
+	Task.Delay(2000);
+	Debug.Log("Slept");
+});
         
 
-	//Run a Task on a background thread
-        Task.Run(() =>
-        {
-            Debug.Log("("Sleeping...");
-            Task.Delay(2000);
-            Debug.Log("("Slept");
-        });
+// Run a Task on a background thread
+Task.Run(() =>
+{
+	Debug.Log("("Sleeping...");
+	Task.Delay(2000);
+	Debug.Log("("Slept");
+});
         
 
-	// Run a coroutine as a tasks
-	Task.RunCoroutine(RoutineFunction());
+// Run a coroutine as a tasks
+Task.RunCoroutine(RoutineFunction());
 
-	IEnumerator RoutineFunction(){
-		Debug.LogOutput("Sleeping...");
-		yield return new WaitForSeconds(2);
-		Debug.LogOutput("Slept");
-	}
-
-	// Run a background task that then runs a task on the main thread
-	Task.Run(() =>
+IEnumerator RoutineFunction(){
+	Debug.LogOutput("Sleeping...");
+	yield return new WaitForSeconds(2);
+	Debug.LogOutput("Slept");
+}
+       
+// Run a background task that then runs a task on the main thread
+Task.Run(() =>
+{
+	Debug.Log("Thread A Sleep");
+	Task.Delay(2000);
+	Debug.Log("Thread A Awake");
+	Task.RunOnMain(() =>
 	{
-		Debug.Log("("Thread A Sleep");
+		Debug.Log("Thread B Sleeping...");
 		Task.Delay(2000);
-		Debug.Log("("Thread A Awake");
-		Task.RunOnMain(() =>
-		{
-			Debug.Log("Sleeping...");
-			Task.Delay(2000);
-			Debug.Log("Slept");
-		});
-		Debug.Log("Thread B By");
-	});     
+		Debug.Log("Thread B Slept");
+	});
 	
-	// Run a coroutine with a task as the parameter        
-	Task.RunCoroutine<string>(RoutineFunction());
+	Debug.Log("Thread A Done");
+});     
+		
+// Run a coroutine with a task as the parameter        
+Task.RunCoroutine<string>(RoutineFunction());
 
-	IEnumerator RoutineFunction(Task<string> task){
-		// manually set State / Exception / Result
-		task.Result  "Success !"
-	}
+IEnumerator RoutineFunction(Task<string> task){
+	//manually set State / Exception / Result
 }
 ```
 
