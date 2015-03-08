@@ -70,7 +70,12 @@ namespace Foundation.Tasks
                 throw new ArgumentNullException("function");
 
             _function = function;
-            Strategy = TaskStrategy.BackgroundThread;
+            Status = TaskStatus.Running;
+#if UNITY_WEBGL
+            Execute();
+#else
+            TaskManager.RunOnMainThread(Execute);
+#endif
         }
 
         /// <summary>
@@ -84,7 +89,12 @@ namespace Foundation.Tasks
 
             _function2 = function;
             Paramater = param;
-            Strategy = TaskStrategy.BackgroundThread;
+            Status = TaskStatus.Running;
+#if UNITY_WEBGL
+            Execute();
+#else
+            TaskManager.RunOnMainThread(Execute);
+#endif
         }
 
         /// <summary>

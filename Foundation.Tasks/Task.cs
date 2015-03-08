@@ -37,10 +37,12 @@ namespace Foundation.Tasks
     /// </summary>
     public enum TaskStrategy
     {
+#if !UNITY_WEBGL
         /// <summary>
         /// Dispatches the task to a background thread
         /// </summary>
         BackgroundThread,
+#endif
         /// <summary>
         /// Dispatches the task to the main thread
         /// </summary>
@@ -203,7 +205,11 @@ namespace Foundation.Tasks
             : this()
         {
             _action = action;
+#if UNITY_WEBGL
+            Strategy = TaskStrategy.MainThread;
+#else
             Strategy = TaskStrategy.BackgroundThread;
+#endif
         }
 
         /// <summary>
@@ -261,7 +267,11 @@ namespace Foundation.Tasks
             : this()
         {
             _action2 = action;
+#if UNITY_WEBGL
+            Strategy = TaskStrategy.MainThread;
+#else
             Strategy = TaskStrategy.BackgroundThread;
+#endif
             Paramater = paramater;
         }
 
@@ -309,7 +319,7 @@ namespace Foundation.Tasks
                     UnityEngine.Debug.LogException(ex);
             }
         }
-
+        #if !UNITY_WEBGL
         /// <summary>
         /// Executes the task in background thread
         /// </summary>
@@ -318,6 +328,7 @@ namespace Foundation.Tasks
             Status = TaskStatus.Running;
             ThreadPool.QueueUserWorkItem(state => Execute());
         }
+#endif
 
         /// <summary>
         /// Executes the task in background thread
@@ -334,7 +345,11 @@ namespace Foundation.Tasks
         protected void RunOnMainThread()
         {
             Status = TaskStatus.Running;
+#if UNITY_WEBGL
+            Execute();
+#else
             TaskManager.RunOnMainThread(Execute);
+#endif
         }
 
         /// <summary>
@@ -383,6 +398,15 @@ namespace Foundation.Tasks
 
             switch (Strategy)
             {
+
+                case TaskStrategy.Coroutine:
+                    RunAsCoroutine();
+                    break;
+#if UNITY_WEBGL
+                default:
+                    RunOnCurrentThread();
+                    break;
+#else
                 case TaskStrategy.BackgroundThread:
                     if (DisableMultiThread)
                         RunOnCurrentThread();
@@ -395,9 +419,7 @@ namespace Foundation.Tasks
                 case TaskStrategy.MainThread:
                     RunOnMainThread();
                     break;
-                case TaskStrategy.Coroutine:
-                    RunAsCoroutine();
-                    break;
+#endif
             }
         }
 

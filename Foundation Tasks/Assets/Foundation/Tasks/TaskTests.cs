@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Foundation.Tasks
 {
@@ -10,9 +11,11 @@ namespace Foundation.Tasks
     [AddComponentMenu("Foundation/Tasks/TaskTests")]
     public class TaskTests : MonoBehaviour
     {
+        public Text Output;
        
         public IEnumerator Start()
         {
+            Application.logMessageReceived+=Application_logMessageReceived;
             yield return 1;
             Debug.Log("Tests (9)");
 
@@ -36,6 +39,14 @@ namespace Foundation.Tasks
             Task.RunCoroutine<string>(Test9).ContinueWith(t => Debug.Log(t.Result));
         }
 
+void Application_logMessageReceived(string condition, string stackTrace, LogType type)
+{
+    if(Output)
+    {
+        Output.text= condition;
+    }
+}
+
 
         void Test2(string param)
         {
@@ -47,6 +58,7 @@ namespace Foundation.Tasks
             yield return 1;
             Debug.Log("3 Coroutine Complete");
         }
+
         IEnumerator Test5(Task task)
         {
             yield return 1;
