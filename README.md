@@ -52,11 +52,11 @@ You dont need to add this object to your scene, it is added automatically.
 ####Exceptions
 To set the task to the faulted state in an action simply throw an exception. The exception will be saved in the Task.Exception property. For coroutines you will need to set the task state and exception manually (as exception handeling in coroutines is limmited.
 ```c#
-		// Pass in an action, function, method or coroutine
-            	var task = Task.Run(() =>
-            	{
-            		throw new Exception("I am failure");
-            	});
+//Pass in an action, function, method or coroutine
+var task = Task.Run(() =>
+{
+	throw new Exception("I am failure");
+});
 ````
 
 ## Debugging
@@ -108,6 +108,27 @@ public class AccountMenu : Monobehaviour    {
 
 
 In the above example the AccountService would be returning a Task of some sort. That method be a action running in a background thread or a coroutine using WWW (the consumer doesn't really care).
+
+`````c#
+public class AccountService     {
+	
+	public Task<bool> Login(){
+	
+		return Task.Run(LoginInternal);
+		// or
+		return Task<.RunCoroutine<bool>(LoginInternal2);
+	}
+	
+	bool LoginInternal(){
+	// do work
+	}
+	
+	IEnumerator LoginInternal2(Task<bool> task){
+		// do work
+		// manually set result / state
+	}
+}
+`````
 
 ## Kitchen Sink Examples
 
