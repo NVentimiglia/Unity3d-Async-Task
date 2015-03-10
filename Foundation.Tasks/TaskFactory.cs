@@ -265,6 +265,23 @@ namespace Foundation.Tasks
         {
             return new Task<T>(TaskStrategy.Custom) { Status = TaskStatus.Faulted, Exception = ex };
         }
+
+
+        /// <summary>
+        /// A default task in the faulted state
+        /// </summary>
+        public static Task<T> FailedTask<T>(string exception, T result)
+        {
+            return FailedTask<T>(new Exception(exception), result);
+        }
+
+        /// <summary>
+        /// A default task in the faulted state
+        /// </summary>
+        public static Task<T> FailedTask<T>(Exception ex, T result)
+        {
+            return new Task<T>(TaskStrategy.Custom) { Status = TaskStatus.Faulted, Exception = ex, Result = result };
+        }
         #endregion
 
     }
