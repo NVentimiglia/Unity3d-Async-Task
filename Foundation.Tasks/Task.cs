@@ -104,7 +104,7 @@ namespace Foundation.Tasks
         /// <summary>
         /// Parameter
         /// </summary> 
-        public object Paramater;
+        public object Paramater { get; set; }
 
         /// <summary>
         /// Execution option
@@ -137,7 +137,8 @@ namespace Foundation.Tasks
             }
         }
 
-        public Exception Exception;
+        public Exception Exception { get; set; }
+
         #endregion
 
         #region computed properties
