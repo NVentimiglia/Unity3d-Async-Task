@@ -56,7 +56,7 @@ namespace Foundation.Tasks
         /// </summary>
         public static bool IsMainThread
         {
-#if Windows
+#if UNITY_WSA
             get { return Environment.CurrentManagedThreadId == MainThread; }
 #else
             get { return Thread.CurrentThread == MainThread; }
@@ -66,7 +66,7 @@ namespace Foundation.Tasks
         /// <summary>
         /// The Main Thread
         /// </summary>
-#if Windows
+#if UNITY_WSA
         public static int MainThread { get; protected set; }
 #else
         public static Thread MainThread { get; protected set; }
@@ -105,7 +105,7 @@ namespace Foundation.Tasks
                 DontDestroyOnLoad(go);
                 _instance = go.AddComponent<TaskManager>();
 
-#if Windows
+#if UNITY_WSA
                 MainThread = Environment.CurrentManagedThreadId;
 #else
                 MainThread = Thread.CurrentThread;

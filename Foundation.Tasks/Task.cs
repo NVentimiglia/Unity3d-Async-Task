@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-#if Windows
+#if UNITY_WSA
 using Windows.System.Threading;
 #else
 using System.Threading;
@@ -89,7 +89,7 @@ namespace Foundation.Tasks
     ///        Debug.LogException(task.Exception)
     ///</code>
     ///</example>
-    public partial class Task : IDisposable
+    public partial class UnityTask : IDisposable
     {
         #region options
         /// <summary>
@@ -170,7 +170,7 @@ namespace Foundation.Tasks
 
         #region constructor
 
-        static Task()
+        static UnityTask()
         {
             TaskManager.ConfirmInit();
         }
@@ -178,7 +178,7 @@ namespace Foundation.Tasks
         /// <summary>
         /// Creates a new task
         /// </summary>
-        protected Task()
+        protected UnityTask()
         {
             Status = TaskStatus.Created;
         }
@@ -186,7 +186,7 @@ namespace Foundation.Tasks
         /// <summary>
         /// Creates a new task
         /// </summary>
-        public Task(TaskStrategy mode)
+        public UnityTask(TaskStrategy mode)
             : this()
         {
             Strategy = mode;
@@ -196,7 +196,7 @@ namespace Foundation.Tasks
         /// Creates a new Task in a Faulted state
         /// </summary>
         /// <param name="ex"></param>
-        public Task(Exception ex)
+        public UnityTask(Exception ex)
         {
             Exception = ex;
             Strategy = TaskStrategy.Custom;
@@ -207,7 +207,7 @@ namespace Foundation.Tasks
         /// Creates a new background task
         /// </summary>
         /// <param name="action"></param>
-        public Task(Action action)
+        public UnityTask(Action action)
             : this()
         {
             _action = action;
@@ -223,7 +223,7 @@ namespace Foundation.Tasks
         /// </summary>
         /// <param name="action"></param>
         /// <param name="mode"></param>
-        public Task(Action action, TaskStrategy mode)
+        public UnityTask(Action action, TaskStrategy mode)
             : this()
         {
             if (mode == TaskStrategy.Coroutine)
@@ -237,7 +237,7 @@ namespace Foundation.Tasks
         /// Creates a new Coroutine Task
         /// </summary>
         /// <param name="action"></param>
-        public Task(IEnumerator action)
+        public UnityTask(IEnumerator action)
             : this()
         {
             if (action == null)
@@ -253,7 +253,7 @@ namespace Foundation.Tasks
         /// </summary>
         /// <param name="action"></param>
         /// <param name="param"></param>
-        public Task(IEnumerator action, object param)
+        public UnityTask(IEnumerator action, object param)
             : this()
         {
             if (action == null)
@@ -269,7 +269,7 @@ namespace Foundation.Tasks
         /// </summary>
         /// <param name="action"></param>
         /// <param name="paramater"></param>
-        public Task(Delegate action, object paramater)
+        public UnityTask(Delegate action, object paramater)
             : this()
         {
             _action2 = action;
@@ -287,7 +287,7 @@ namespace Foundation.Tasks
         /// <param name="action"></param>
         /// <param name="paramater"></param>
         /// <param name="mode"></param>
-        public Task(Delegate action, object paramater, TaskStrategy mode)
+        public UnityTask(Delegate action, object paramater, TaskStrategy mode)
             : this()
         {
             if (mode == TaskStrategy.Coroutine)
@@ -329,7 +329,7 @@ namespace Foundation.Tasks
         /// <summary>
         /// Executes the task in background thread
         /// </summary>
-#if Windows
+#if UNITY_WSA
         protected async void RunOnBackgroundThread()
         {
             Status = TaskStatus.Running;
@@ -444,7 +444,7 @@ namespace Foundation.Tasks
         /// </summary>
         /// <param name="action"></param>
         /// <returns></returns>
-        public Task ContinueWith(Action<Task> action)
+        public UnityTask ContinueWith(Action<UnityTask> action)
         {
             Debug.Log("Continue With");
             if (IsCompleted)
@@ -466,7 +466,7 @@ namespace Foundation.Tasks
         /// </summary>
         /// <param name="action"></param>
         /// <returns></returns>
-        public T ContinueWith<T>(Action<T> action) where T : Task
+        public T ContinueWith<T>(Action<T> action) where T : UnityTask
         {
             Debug.Log("Continue With");
             if (IsCompleted)
@@ -487,7 +487,7 @@ namespace Foundation.Tasks
         /// will throw if faulted
         /// </summary>
         /// <returns></returns>
-        public Task ThrowIfFaulted()
+        public UnityTask ThrowIfFaulted()
         {
             if (IsFaulted)
                 throw Exception;
@@ -511,7 +511,7 @@ namespace Foundation.Tasks
         /// <summary>
         /// Waits for the task to complete
         /// </summary>
-        public Task Wait()
+        public UnityTask Wait()
         {
             if (TaskManager.IsMainThread && !DisableMultiThread)
             {
@@ -532,7 +532,7 @@ namespace Foundation.Tasks
         /// Thread.Sleep
         /// </summary>
         /// <param name="millisecondTimeout"></param>
-#if Windows
+#if UNITY_WSA
         public async static void Delay(int millisecondTimeout)
         {
             await System.Threading.Tasks.Task.Delay(TimeSpan.FromMilliseconds(millisecondTimeout));

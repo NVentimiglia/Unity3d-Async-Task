@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: 69e9464eae7c9824f9cdd9047ae9d225
-timeCreated: 1427004970
+guid: 31b2d11f30e0b6c43905570926685421
+timeCreated: 1427043595
 licenseType: Free
 PluginImporter:
   serializedVersion: 1
@@ -38,7 +38,7 @@ PluginImporter:
       settings:
         CPU: AnyCPU
     WP8:
-      enabled: 0
+      enabled: 1
       settings:
         CPU: AnyCPU
         DontProcess: False

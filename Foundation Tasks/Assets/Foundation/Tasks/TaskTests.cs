@@ -6,10 +6,10 @@ using UnityEngine.UI;
 namespace Foundation.Tasks
 {
     /// <summary>
-    /// Example of how to use the task library
+    /// Example of how to use the UnityTask library
     /// </summary>
-    [AddComponentMenu("Foundation/Tasks/TaskTests")]
-    public class TaskTests : MonoBehaviour
+    [AddComponentMenu("Foundation/UnityTasks/UnityTaskTests")]
+    public class UnityTaskTests : MonoBehaviour
     {
         public Text Output;
        
@@ -19,24 +19,24 @@ namespace Foundation.Tasks
             yield return 1;
             Debug.Log("Tests (9)");
 
-            Task.Run(() => Debug.Log("1 Run Complete"));
+            UnityTask.Run(() => Debug.Log("1 Run Complete"));
             yield return new WaitForSeconds(1);
-            Task.Run(Test2, "2 Run With Param Complete");
+            UnityTask.Run(Test2, "2 Run With Param Complete");
             yield return new WaitForSeconds(1);
-            Task.RunCoroutine(Test3);
+            UnityTask.RunCoroutine(Test3);
             yield return new WaitForSeconds(1);
-            Task.RunCoroutine(Test4()).ContinueWith(t => Debug.Log("4 complete"));
+            UnityTask.RunCoroutine(Test4()).ContinueWith(t => Debug.Log("4 complete"));
             yield return new WaitForSeconds(1);
-            Task.RunCoroutine(Test5).ContinueWith(t => Debug.Log("5 complete"));
+            UnityTask.RunCoroutine(Test5).ContinueWith(t => Debug.Log("5 complete"));
             yield return new WaitForSeconds(1);
-            Task.Run(() => { return "6 Run with Result Complete"; }).ContinueWith(t => Debug.Log(t.Result));
+            UnityTask.Run(() => { return "6 Run with Result Complete"; }).ContinueWith(t => Debug.Log(t.Result));
             yield return new WaitForSeconds(1);
-            Task.Run<string, string>(Test7, "7 Run with Param and Result").ContinueWith(t => Debug.Log(t.Result));
+            UnityTask.Run<string, string>(Test7, "7 Run with Param and Result").ContinueWith(t => Debug.Log(t.Result));
             yield return new WaitForSeconds(1);
-            var t1 = Task.RunCoroutine<string>(Test8);
+            var t1 = UnityTask.RunCoroutine<string>(Test8);
             yield return new WaitForSeconds(1);
             Debug.Log(t1.Result);
-            Task.RunCoroutine<string>(Test9).ContinueWith(t => Debug.Log(t.Result));
+            UnityTask.RunCoroutine<string>(Test9).ContinueWith(t => Debug.Log(t.Result));
         }
 
 void Application_logMessageReceived(string condition, string stackTrace, LogType type)
@@ -59,12 +59,12 @@ void Application_logMessageReceived(string condition, string stackTrace, LogType
             Debug.Log("3 Coroutine Complete");
         }
 
-        IEnumerator Test5(Task task)
+        IEnumerator Test5(UnityTask UnityTask)
         {
             yield return 1;
-            if (task == null)
+            if (UnityTask == null)
                 Debug.LogWarning("wtf");
-            Debug.Log("5 Coroutine with Task State Complete");
+            Debug.Log("5 Coroutine with UnityTask State Complete");
         }
 
         IEnumerator Test4()
@@ -79,46 +79,46 @@ void Application_logMessageReceived(string condition, string stackTrace, LogType
             return param;
         }
 
-        IEnumerator Test8(Task<string> task)
+        IEnumerator Test8(UnityTask<string> UnityTask)
         {
             yield return 1;
             Debug.Log("8 Coroutine With Result...");
             //set result or exception
-            task.Result = "8 Complete";
+            UnityTask.Result = "8 Complete";
         }
-        IEnumerator Test9(Task<string> task)
+        IEnumerator Test9(UnityTask<string> UnityTask)
         {
             yield return 1;
-            if (task == null)
+            if (UnityTask == null)
                 Debug.LogWarning("wtf");
 
-            task.Result = ("9 Coroutine with Task State Complete");
+            UnityTask.Result = ("9 Coroutine with UnityTask State Complete");
         }
        
         
         void MainTest()
         {
-            Task.RunOnMain(() =>
+            UnityTask.RunOnMain(() =>
             {
                 Debug.Log("Sleeping...");
-                Task.Delay(2000);
+                UnityTask.Delay(2000);
                 Debug.Log("Slept");
             });
         }
 
         void Background()
         {
-            Task.Run(() =>
+            UnityTask.Run(() =>
             {
                 Debug.Log("Sleeping...");
-                Task.Delay(2000);
+                UnityTask.Delay(2000);
                 Debug.Log("Slept");
             });
         }
 
         void Routine()
         {
-            Task.RunCoroutine(RoutineFunction());
+            UnityTask.RunCoroutine(RoutineFunction());
         }
 
         IEnumerator RoutineFunction()
@@ -132,22 +132,22 @@ void Application_logMessageReceived(string condition, string stackTrace, LogType
 
         void BackgroundToMain()
         {
-            Task.Run(() =>
+            UnityTask.Run(() =>
             {
 
                 Debug.Log("Thread A Running");
 
-                var task = Task.RunOnMain(() =>
+                var task = UnityTask.RunOnMain(() =>
                    {
                        Debug.Log("Sleeping...");
-                       Task.Delay(2000);
+                       UnityTask.Delay(2000);
                        Debug.Log("Slept");
                    });
 
                 while (task.IsRunning)
                 {
                     Debug.Log(".");
-                    Task.Delay(100);
+                    UnityTask.Delay(100);
                 }
 
                 Debug.Log("Thread A Done");
@@ -157,16 +157,16 @@ void Application_logMessageReceived(string condition, string stackTrace, LogType
 
         void BackgroundToRotine()
         {
-            Task.Run(() =>
+            UnityTask.Run(() =>
             {
                 Debug.Log("Thread A Running");
 
-                var task = Task.RunCoroutine(RoutineFunction());
+                var task = UnityTask.RunCoroutine(RoutineFunction());
 
                 while (task.IsRunning)
                 {
                     Debug.Log(".");
-                    Task.Delay(500);
+                    UnityTask.Delay(500);
                 }
 
                 Debug.Log("Thread A Done");
@@ -176,17 +176,17 @@ void Application_logMessageReceived(string condition, string stackTrace, LogType
 
         void BackgroundToBackground()
         {
-            Task.Run(() =>
+            UnityTask.Run(() =>
             {
                 Debug.Log("1 Sleeping...");
 
-                Task.Run(() =>
+                UnityTask.Run(() =>
                 {
                     Debug.Log("2 Sleeping...");
-                    Task.Delay(2000);
+                    UnityTask.Delay(2000);
                     Debug.Log("2 Slept");
                 });
-                Task.Delay(2000);
+                UnityTask.Delay(2000);
                 Debug.Log("1 Slept");
             });
 
@@ -194,13 +194,13 @@ void Application_logMessageReceived(string condition, string stackTrace, LogType
 
         void BackgroundToBackgroundException()
         {
-            var task1 = Task.Run(() =>
+            var task1 = UnityTask.Run(() =>
             {
                 Debug.Log("1 Go");
 
-                var task2 = Task.Run(() =>
+                var task2 = UnityTask.Run(() =>
                 {
-                    Task.Delay(100);
+                    UnityTask.Delay(100);
                     Debug.Log("2 Go");
                     throw new Exception("2 Fail");
                 });
@@ -219,7 +219,7 @@ void Application_logMessageReceived(string condition, string stackTrace, LogType
 
         void BackgroundException()
         {
-            var task1 = Task.Run(() =>
+            var task1 = UnityTask.Run(() =>
             {
                 throw new Exception("Hello World");
             });
@@ -231,16 +231,16 @@ void Application_logMessageReceived(string condition, string stackTrace, LogType
         }
 
 
-        void CoroutineTaskState()
+        void CoroutineUnityTaskState()
         {
-            Task.RunCoroutine<string>(CoroutineTaskStateAsync).ContinueWith(o => Debug.Log(o.Result));
+            UnityTask.RunCoroutine<string>(CoroutineUnityTaskStateAsync).ContinueWith(o => Debug.Log(o.Result));
         }
 
-        IEnumerator CoroutineTaskStateAsync(Task<string> task)
+        IEnumerator CoroutineUnityTaskStateAsync(UnityTask<string> UnityTask)
         {
             yield return 1;
 
-            task.Result = "Hello World";
+            UnityTask.Result = "Hello World";
         }
 
     }

@@ -27,7 +27,7 @@ namespace Foundation.Tasks
     ///        Debug.LogException(task.Exception)
     ///</code>
     ///</example>
-    public class Task<TResult> : Task
+    public class UnityTask<TResult> : UnityTask
     {
         #region public fields
         Func<TResult> _function;
@@ -42,7 +42,7 @@ namespace Foundation.Tasks
 
         #region ctor
 
-        public Task()
+        public UnityTask()
         {
 
         }
@@ -51,7 +51,7 @@ namespace Foundation.Tasks
         /// Returns the task in the Success state.
         /// </summary>
         /// <param name="result"></param>
-        public Task(TResult result)
+        public UnityTask(TResult result)
             : this()
         {
             Status = TaskStatus.Success;
@@ -63,7 +63,7 @@ namespace Foundation.Tasks
         /// Creates a new background Task strategy
         /// </summary>
         /// <param name="function"></param>
-        public Task(Func<TResult> function)
+        public UnityTask(Func<TResult> function)
             : this()
         {
             if (function == null)
@@ -81,7 +81,7 @@ namespace Foundation.Tasks
         /// <summary>
         /// Creates a new background Task strategy
         /// </summary>
-        public Task(Delegate function, object param)
+        public UnityTask(Delegate function, object param)
             : this()
         {
             if (function == null)
@@ -100,7 +100,7 @@ namespace Foundation.Tasks
         /// <summary>
         /// Creates a new task with a specific strategy
         /// </summary>
-        public Task(Func<TResult> function, TaskStrategy mode)
+        public UnityTask(Func<TResult> function, TaskStrategy mode)
             : this()
         {
             if (function == null)
@@ -117,7 +117,7 @@ namespace Foundation.Tasks
         /// <summary>
         /// Creates a new task with a specific strategy
         /// </summary>
-        public Task(Delegate function, object param, TaskStrategy mode)
+        public UnityTask(Delegate function, object param, TaskStrategy mode)
             : this()
         {
             if (function == null)
@@ -134,7 +134,7 @@ namespace Foundation.Tasks
         /// <summary>
         /// Creates a new Coroutine  task
         /// </summary>
-        public Task(IEnumerator routine)
+        public UnityTask(IEnumerator routine)
         {
             if (routine == null)
                 throw new ArgumentNullException("routine");
@@ -148,7 +148,7 @@ namespace Foundation.Tasks
         /// Creates a new Task in a Faulted state
         /// </summary>
         /// <param name="ex"></param>
-        public Task(Exception ex)
+        public UnityTask(Exception ex)
         {
             Exception = ex;
             Strategy = TaskStrategy.Custom;
@@ -158,7 +158,7 @@ namespace Foundation.Tasks
         /// <summary>
         /// Creates a new task
         /// </summary>
-        public Task(TaskStrategy mode)
+        public UnityTask(TaskStrategy mode)
             : this()
         {
             Strategy = mode;
@@ -197,7 +197,7 @@ namespace Foundation.Tasks
         /// </summary>
         /// <param name="action"></param>
         /// <returns></returns>
-        public Task<TResult> ContinueWith(Action<Task<TResult>> action)
+        public UnityTask<TResult> ContinueWith(Action<UnityTask<TResult>> action)
         {
             if (IsCompleted)
             {
