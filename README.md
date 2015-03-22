@@ -13,6 +13,9 @@ A utility library inspired by the Task Parallelism Library, but made especially 
  - Works on Windows, Mac, Ios, Android
  - May have issues on WebGL as it does not support threading (but coroutine should work fine.)
 
+## Dll's for
+Desktop, Webplayer, iOS, Android, Windows Store
+
 ## Structure
 
 - The "Foundation Tasks" folder contains a very basic example

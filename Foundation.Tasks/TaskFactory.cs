@@ -272,7 +272,7 @@ namespace Foundation.Tasks
         /// </summary>
         public static Task<T> FailedTask<T>(string exception, T result)
         {
-            return FailedTask<T>(new Exception(exception), result);
+            return FailedTask(new Exception(exception), result);
         }
 
         /// <summary>

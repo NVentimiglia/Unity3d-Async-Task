@@ -1,8 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading;
 using UnityEngine;
+#if !Windows
+using System.Threading;
+#endif
 
 namespace Foundation.Tasks
 {
@@ -54,13 +56,21 @@ namespace Foundation.Tasks
         /// </summary>
         public static bool IsMainThread
         {
+#if Windows
+            get { return Environment.CurrentManagedThreadId == MainThread; }
+#else
             get { return Thread.CurrentThread == MainThread; }
+#endif
         }
 
         /// <summary>
         /// The Main Thread
         /// </summary>
+#if Windows
+        public static int MainThread { get; protected set; }
+#else
         public static Thread MainThread { get; protected set; }
+#endif
           
         /// <summary>
         /// Static Accessor
@@ -95,7 +105,11 @@ namespace Foundation.Tasks
                 DontDestroyOnLoad(go);
                 _instance = go.AddComponent<TaskManager>();
 
+#if Windows
+                MainThread = Environment.CurrentManagedThreadId;
+#else
                 MainThread = Thread.CurrentThread;
+#endif
             }
 
         }

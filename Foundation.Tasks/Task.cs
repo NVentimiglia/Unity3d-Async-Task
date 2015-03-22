@@ -1,7 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
+#if Windows
+using Windows.System.Threading;
+#else
 using System.Threading;
+#endif
 
 namespace Foundation.Tasks
 {
@@ -115,7 +120,7 @@ namespace Foundation.Tasks
         Delegate _action2;
         protected IEnumerator _routine;
 
-        protected List<Delegate> OnComplete = new List<Delegate>(1);
+        protected List<Delegate> OnComplete = new List<Delegate>();
 
         #endregion
 
@@ -260,7 +265,7 @@ namespace Foundation.Tasks
         }
 
         /// <summary>
-        /// Creates a new background task with a paramater
+        /// Creates a new background task with a parameter
         /// </summary>
         /// <param name="action"></param>
         /// <param name="paramater"></param>
@@ -277,7 +282,7 @@ namespace Foundation.Tasks
         }
 
         /// <summary>
-        /// Creates a new Task with a paramater
+        /// Creates a new Task with a parameter
         /// </summary>
         /// <param name="action"></param>
         /// <param name="paramater"></param>
@@ -317,17 +322,24 @@ namespace Foundation.Tasks
                 Status = TaskStatus.Faulted;
 
                 if (LogErrors)
-                    UnityEngine.Debug.LogException(ex);
+                    Debug.LogException(ex);
             }
         }
-        #if !UNITY_WEBGL
+#if !UNITY_WEBGL
         /// <summary>
         /// Executes the task in background thread
         /// </summary>
+#if Windows
+        protected async void RunOnBackgroundThread()
+        {
+            Status = TaskStatus.Running;
+            await ThreadPool.RunAsync(o=>Execute());
+#else     
         protected void RunOnBackgroundThread()
         {
             Status = TaskStatus.Running;
             ThreadPool.QueueUserWorkItem(state => Execute());
+#endif
         }
 #endif
 
@@ -369,11 +381,13 @@ namespace Foundation.Tasks
 
         protected virtual void OnTaskComplete()
         {
+            Debug.Log("OnTaskComplete");
             if (OnComplete != null)
             {
-                for (int i = 0;i < OnComplete.Count;i++)
+                foreach (var d in OnComplete)
                 {
-                    OnComplete[i].DynamicInvoke(this);
+                    if (d != null)
+                        d.DynamicInvoke(this);
                 }
             }
         }
@@ -392,6 +406,7 @@ namespace Foundation.Tasks
         /// </summary>
         public void Start()
         {
+            Debug.Log("Start");
             if (IsCompleted)
             {
                 return;
@@ -431,6 +446,7 @@ namespace Foundation.Tasks
         /// <returns></returns>
         public Task ContinueWith(Action<Task> action)
         {
+            Debug.Log("Continue With");
             if (IsCompleted)
             {
                 action(this);
@@ -438,7 +454,7 @@ namespace Foundation.Tasks
             else
             {
                 if (OnComplete == null)
-                    OnComplete = new List<Delegate>(1);
+                    OnComplete = new List<Delegate>();
 
                 OnComplete.Add(action);
             }
@@ -452,12 +468,16 @@ namespace Foundation.Tasks
         /// <returns></returns>
         public T ContinueWith<T>(Action<T> action) where T : Task
         {
+            Debug.Log("Continue With");
             if (IsCompleted)
             {
                 action(this as T);
             }
             else
             {
+                if (OnComplete == null)
+                    OnComplete = new List<Delegate>();
+
                 OnComplete.Add(action);
             }
             return this as T;
@@ -495,7 +515,7 @@ namespace Foundation.Tasks
         {
             if (TaskManager.IsMainThread && !DisableMultiThread)
             {
-                UnityEngine.Debug.LogWarning("Use WaitRoutine in coroutine to wait in main thread");
+                Debug.LogWarning("Use WaitRoutine in coroutine to wait in main thread");
             }
 
             Delay(10);
@@ -512,9 +532,15 @@ namespace Foundation.Tasks
         /// Thread.Sleep
         /// </summary>
         /// <param name="millisecondTimeout"></param>
+#if Windows
+        public async static void Delay(int millisecondTimeout)
+        {
+            await System.Threading.Tasks.Task.Delay(TimeSpan.FromMilliseconds(millisecondTimeout));
+#else      
         public static void Delay(int millisecondTimeout)
         {
             Thread.Sleep(millisecondTimeout);
+#endif
         }
 
         public virtual void Dispose()
