@@ -56,7 +56,7 @@ You dont need to add this object to your scene, it is added automatically.
 To set the task to the faulted state in an action simply throw an exception. The exception will be saved in the Task.Exception property. For coroutines you will need to set the task state and exception manually (as exception handeling in coroutines is limmited.
 ```c#
 //Pass in an action, function, method or coroutine
-var task = Task.Run(() =>
+var task = UnityTask.Run(() =>
 {
 	throw new Exception("I am failure");
 });
@@ -92,7 +92,7 @@ public class AccountMenu : Monobehaviour    {
 	
 	// run on instance startup
 	IEnumerator Start(){
-		// returns a Task<bool>
+		// returns a UnityTask<bool>
 		var task = AccountService.Login();
 
 		// wait for the task to finish
@@ -112,18 +112,18 @@ In the above example the AccountService would be returning a Task of some sort. 
 `````c#
 public class AccountService     {
 	
-	public Task<bool> Login(){
+	public UnityTask<bool> Login(){
 		// run in background thread
-		return Task.Run(LoginInternal);
+		return UnityTask.Run(LoginInternal);
 		// or run in unity thread as a coroutine
-		return Task<.RunCoroutine<bool>(LoginInternal2);
+		return UnityTask<.RunCoroutine<bool>(LoginInternal2);
 	}
 	
 	bool LoginInternal(){
 		// do work
 	}
 	
-	IEnumerator LoginInternal2(Task<bool> task){
+	IEnumerator LoginInternal2(UnityTask<bool> task){
 		// do work
 		// manually set result / state
 	}
@@ -138,7 +138,7 @@ For instance if the method fails a sanity check I will return a custom task in t
 
 `````c#
 void Login(string username){
-	return new Task(TaskStrategy.Custom) {
+	return new UnityTask(TaskStrategy.Custom) {
 		Status = TaskStatus.Faulted,
 		Exception = new Exception("Invalid Username")
 	};
@@ -152,11 +152,11 @@ void Login(string username){
 I also use the custom strategy when I need to return a task but the internal method uses an arbitrary callback - such as in the case of UnityNetworking.
 
 `````c#
-Task<bool> ConnectTask;
+UnityTask<bool> ConnectTask;
 void Awake(){
-	ConnectTask = new Task<bool>(TaskStrategy.Custom);
+	ConnectTask = new UnityTask<bool>(TaskStrategy.Custom);
 }
-Task<bool> ConnectToServer(HostData username){
+UnityTask<bool> ConnectToServer(HostData username){
         ConnectTask.State = TaskState.Running;
 	// Do Unity Connect Logic here
 	// Consumer will 'wait' untill this server fails/successes the task
@@ -179,11 +179,11 @@ void OnConnectedToServer(){
 // Assume running from a coroutine
 
 //Turn an action into a waitable background task
-var task = Task.Run(() =>
+var task = UnityTask.Run(() =>
 {
 	//Debug.Log does not work in
 	Debug.Log("Sleeping...");
-	Task.Delay(2000);
+	UnityTask.Delay(2000);
 	Debug.Log("Slept");
 });
 
@@ -198,15 +198,15 @@ if(task.IsFaulted)
 //var result = task.Result;
 
 // Run a Task on the main thread (great for networking!)
-Task.RunOnMain(() =>
+UnityTask.RunOnMain(() =>
 {
 	Debug.Log("Sleeping...");
-	Task.Delay(2000);
+	UnityTask.Delay(2000);
 	Debug.Log("Slept");
 });
         
 // Run a coroutine as a tasks
-Task.RunCoroutine(RoutineFunction());
+UnityTask.RunCoroutine(RoutineFunction());
 
 IEnumerator RoutineFunction(){
 	Debug.LogOutput("Sleeping...");
@@ -215,15 +215,15 @@ IEnumerator RoutineFunction(){
 }
        
 // Run a background task that then runs a task on the main thread
-Task.Run(() =>
+UnityTask.Run(() =>
 {
 	Debug.Log("Thread A Sleep");
-	Task.Delay(2000);
+	UnityTask.Delay(2000);
 	Debug.Log("Thread A Awake");
-	Task.RunOnMain(() =>
+	UnityTask.RunOnMain(() =>
 	{
 		Debug.Log("Thread B Sleeping...");
-		Task.Delay(2000);
+		UnityTask.Delay(2000);
 		Debug.Log("Thread B Slept");
 	});
 	
@@ -231,9 +231,9 @@ Task.Run(() =>
 });     
 		
 // Run a coroutine with a result   
-Task.RunCoroutine<string>(RoutineFunction());
+UnityTask.RunCoroutine<string>(RoutineFunction());
 
-IEnumerator RoutineFunction(Task<string> task){
+IEnumerator RoutineFunction(UnityTask<string> task){
 	//manually set State / Exception / Result
 }
 ```
