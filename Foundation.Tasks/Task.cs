@@ -381,7 +381,6 @@ namespace Foundation.Tasks
 
         protected virtual void OnTaskComplete()
         {
-            Debug.Log("OnTaskComplete");
             if (OnComplete != null)
             {
                 foreach (var d in OnComplete)
@@ -406,7 +405,6 @@ namespace Foundation.Tasks
         /// </summary>
         public void Start()
         {
-            Debug.Log("Start");
             if (IsCompleted)
             {
                 return;
@@ -446,7 +444,6 @@ namespace Foundation.Tasks
         /// <returns></returns>
         public UnityTask ContinueWith(Action<UnityTask> action)
         {
-            Debug.Log("Continue With");
             if (IsCompleted)
             {
                 action(this);
@@ -468,7 +465,6 @@ namespace Foundation.Tasks
         /// <returns></returns>
         public T ContinueWith<T>(Action<T> action) where T : UnityTask
         {
-            Debug.Log("Continue With");
             if (IsCompleted)
             {
                 action(this as T);
