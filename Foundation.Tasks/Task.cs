@@ -144,6 +144,11 @@ namespace Foundation.Tasks
 
         public Exception Exception { get; set; }
 
+        public bool HasContinues
+        {
+            get { return OnComplete.Count > 0; }
+        }
+
         #endregion
 
         #region computed properties
@@ -333,7 +338,7 @@ namespace Foundation.Tasks
         protected async void RunOnBackgroundThread()
         {
             Status = TaskStatus.Running;
-            await ThreadPool.RunAsync(o=>Execute());
+            await ThreadPool.RunAsync(o => Execute());
 #else     
         protected void RunOnBackgroundThread()
         {
@@ -388,6 +393,7 @@ namespace Foundation.Tasks
                     if (d != null)
                         d.DynamicInvoke(this);
                 }
+                OnComplete.Clear();
             }
         }
 
@@ -396,6 +402,7 @@ namespace Foundation.Tasks
             if (Status == TaskStatus.Running || Status == TaskStatus.Created)
                 Status = TaskStatus.Success;
         }
+
         #endregion
 
         #region public methods
@@ -436,49 +443,7 @@ namespace Foundation.Tasks
 #endif
             }
         }
-
-        /// <summary>
-        /// Called after the task is complete
-        /// </summary>
-        /// <param name="action"></param>
-        /// <returns></returns>
-        public UnityTask ContinueWith(Action<UnityTask> action)
-        {
-            if (IsCompleted)
-            {
-                action(this);
-            }
-            else
-            {
-                if (OnComplete == null)
-                    OnComplete = new List<Delegate>();
-
-                OnComplete.Add(action);
-            }
-            return this;
-        }
-
-        /// <summary>
-        /// Called after the task is complete
-        /// </summary>
-        /// <param name="action"></param>
-        /// <returns></returns>
-        public T ContinueWith<T>(Action<T> action) where T : UnityTask
-        {
-            if (IsCompleted)
-            {
-                action(this as T);
-            }
-            else
-            {
-                if (OnComplete == null)
-                    OnComplete = new List<Delegate>();
-
-                OnComplete.Add(action);
-            }
-            return this as T;
-        }
-
+        
         /// <summary>
         /// will throw if faulted
         /// </summary>
@@ -487,40 +452,6 @@ namespace Foundation.Tasks
         {
             if (IsFaulted)
                 throw Exception;
-            return this;
-        }
-
-        /// <summary>
-        /// Wait for the task to complete in an iterator coroutine
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerator WaitRoutine()
-        {
-            yield return 1;
-
-            while (IsRunning)
-            {
-                yield return 1;
-            }
-        }
-
-        /// <summary>
-        /// Waits for the task to complete
-        /// </summary>
-        public UnityTask Wait()
-        {
-            if (TaskManager.IsMainThread && !DisableMultiThread)
-            {
-                Debug.LogWarning("Use WaitRoutine in coroutine to wait in main thread");
-            }
-
-            Delay(10);
-
-            while (IsRunning)
-            {
-                Delay(10);
-            }
-
             return this;
         }
 
@@ -561,6 +492,78 @@ namespace Foundation.Tasks
             _routine = null;
             OnComplete = null;
             _action = null;
+        }
+        #endregion
+
+        #region wait
+        /// <summary>
+        /// Wait for the task to complete in an iterator coroutine
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerator WaitRoutine()
+        {
+            while (IsRunning || HasContinues)
+            {
+                yield return 1;
+            }
+        }
+
+        /// <summary>
+        /// Waits for the task to complete
+        /// </summary>
+        public UnityTask Wait()
+        {
+            if (TaskManager.IsMainThread && !DisableMultiThread)
+            {
+                Debug.LogWarning("Use WaitRoutine in coroutine to wait in main thread");
+            }
+
+            Delay(10);
+
+            while (IsRunning || HasContinues)
+            {
+                Delay(10);
+            }
+
+            return this;
+        }
+        #endregion
+
+        #region continue with
+        /// <summary>
+        /// Called after the task is complete
+        /// </summary>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        public UnityTask ContinueWith(Action<UnityTask> action)
+        {
+            if (IsCompleted)
+            {
+                action(this);
+            }
+            else
+            {
+                OnComplete.Add(action);
+            }
+            return this;
+        }
+
+        /// <summary>
+        /// Called after the task is complete
+        /// </summary>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        public T ContinueWith<T>(Action<T> action) where T : UnityTask
+        {
+            if (IsCompleted)
+            {
+                action(this as T);
+            }
+            else
+            {
+                OnComplete.Add(action);
+            }
+            return this as T;
         }
         #endregion
     }

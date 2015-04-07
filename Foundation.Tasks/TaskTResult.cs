@@ -192,6 +192,7 @@ namespace Foundation.Tasks
 
         #endregion
 
+        #region continue with
         /// <summary>
         /// Called after the task is complete
         /// </summary>
@@ -210,5 +211,44 @@ namespace Foundation.Tasks
 
             return this;
         }
+
+        #endregion
+
+
+        #region ConvertTo
+        /// <summary>
+        /// Like continue runs after the host task is complete but returns a new task with a converted result
+        /// </summary>
+        /// <typeparam name="T">new conversion type</typeparam>
+        /// <param name="func">conversion function</param>
+        /// <returns></returns>
+        public UnityTask<T> ConvertTo<T>(Func<UnityTask<TResult>, T> func)
+        {
+            var task = new UnityTask<T>(TaskStrategy.Custom);
+            if (IsCompleted)
+            {
+                task.Status = Status;
+                task.Exception = Exception;
+                task.Result = func(this);
+                task.Status = Status;
+                task.Exception = Exception;
+            }
+            else
+                TaskManager.StartRoutine(ConvertToAsync(task, func));
+            return task;
+        }
+
+        private IEnumerator ConvertToAsync<T>(UnityTask<T> task, Func<UnityTask<TResult>, T> func)
+        {
+            while (!IsCompleted)
+                yield return 1;
+
+            task.Status = Status;
+            task.Exception = Exception;
+            task.Result = func(this);
+            task.Status = Status;
+            task.Exception = Exception;
+        }
+        #endregion
     }
 }

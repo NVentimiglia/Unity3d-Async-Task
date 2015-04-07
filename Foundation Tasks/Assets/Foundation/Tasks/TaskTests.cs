@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using UnityEditor.VersionControl;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,94 +9,151 @@ namespace Foundation.Tasks
     /// <summary>
     /// Example of how to use the UnityTask library
     /// </summary>
-    [AddComponentMenu("Foundation/UnityTasks/UnityTaskTests")]
-    public class UnityTaskTests : MonoBehaviour
+    [AddComponentMenu("Foundation/UnityTasks/TaskTests")]
+    public class TaskTests : MonoBehaviour
     {
         public Text Output;
-       
-        public IEnumerator Start()
-        {
-            Application.logMessageReceived+=Application_logMessageReceived;
-            yield return 1;
-            Debug.Log("Tests (9)");
+        protected int Counter = 0;
 
-            UnityTask.Run(() => Debug.Log("1 Run Complete"));
-            yield return new WaitForSeconds(1);
-            UnityTask.Run(Test2, "2 Run With Param Complete");
-            yield return new WaitForSeconds(1);
-            UnityTask.RunCoroutine(Test3);
-            yield return new WaitForSeconds(1);
-            UnityTask.RunCoroutine(Test4()).ContinueWith(t => Debug.Log("4 complete"));
-            yield return new WaitForSeconds(1);
-            UnityTask.RunCoroutine(Test5).ContinueWith(t => Debug.Log("5 complete"));
-            yield return new WaitForSeconds(1);
-            UnityTask.Run(() => { return "6 Run with Result Complete"; }).ContinueWith(t => Debug.Log(t.Result));
-            yield return new WaitForSeconds(1);
-            UnityTask.Run<string, string>(Test7, "7 Run with Param and Result").ContinueWith(t => Debug.Log(t.Result));
-            yield return new WaitForSeconds(1);
-            var t1 = UnityTask.RunCoroutine<string>(Test8);
-            yield return new WaitForSeconds(1);
-            Debug.Log(t1.Result);
-            UnityTask.RunCoroutine<string>(Test9).ContinueWith(t => Debug.Log(t.Result));
+        void Assert(Func<bool> compare, int c)
+        {
+            if (!compare.Invoke())
+                throw new Exception(string.Format("Test {0} Failed",c));
         }
 
-void Application_logMessageReceived(string condition, string stackTrace, LogType type)
-{
-    if(Output)
-    {
-        Output.text= condition;
-    }
-}
+        public IEnumerator Start()
+        {
+            Output.text = string.Empty;
+            Counter = 0;
+            Application.logMessageReceived += Application_logMessageReceived;
+            yield return 1;
 
+
+            UnityTask.Run(() =>
+            {
+                Counter++;
+                Debug.Log("1 Run");
+            });
+            yield return new WaitForSeconds(1);
+            Assert(() => Counter == 1,1);
+
+            UnityTask.Run(Test2, "2 Run With Param");
+            yield return new WaitForSeconds(1);
+            Assert(() => Counter == 2,2);
+
+            UnityTask.RunCoroutine(Test3);
+            yield return new WaitForSeconds(1);
+            Assert(() => Counter == 3,3);
+
+            var t4 =UnityTask.RunCoroutine(Test4()).ContinueWith(t =>
+            {
+                Counter++;
+                Debug.Log("5 Coroutine with Continue");
+            });
+            yield return StartCoroutine(t4.WaitRoutine());
+            Assert(() => Counter == 5,5);
+            yield return new WaitForSeconds(1);
+
+            var t5 =UnityTask.RunCoroutine(Test5).ContinueWith(t =>
+            {
+                Counter++;
+                Debug.Log("5 Continued");
+            });
+            yield return StartCoroutine(t5.WaitRoutine());
+            Assert(() => Counter == 7,7);
+            yield return new WaitForSeconds(1);
+
+            UnityTask.Run(() => { return "6 Run with Result And Continue"; }).ContinueWith(t => { Counter++; Debug.Log(t.Result); });
+            Assert(() => Counter == 8,8);
+            yield return new WaitForSeconds(1);
+
+            UnityTask.Run<string, string>(Test7, "7 Run with Param and Result And Continue").ContinueWith(t => { Counter++; Debug.Log(t.Result); });
+            yield return new WaitForSeconds(1);
+            Assert(() => Counter == 10, 10);
+
+            var t1 = UnityTask.RunCoroutine<string>(Test8);
+            yield return StartCoroutine(t1.WaitRoutine());
+            Debug.Log(t1.Result);
+            Assert(() => Counter == 11, 11);
+            yield return new WaitForSeconds(1);
+
+            var t2 = UnityTask.RunCoroutine<string>(Test9).ContinueWith(t => { Counter++; Debug.Log(t.Result); });
+            yield return StartCoroutine(t2.WaitRoutine());
+            Assert(() => Counter == 13, 13);
+
+
+            var t12 = UnityTask.Run(() => { return "1"; }).ConvertTo<int>(task =>
+            {
+                Debug.Log("10 ConvertTo Extension");
+                Counter++; 
+                return int.Parse(task.Result);
+            });
+
+            Assert(() => t12.Result == 1, 14);
+            Assert(() => Counter == 14, 14);
+            
+            Debug.Log("Success");
+        }
+
+        void Application_logMessageReceived(string condition, string stackTrace, LogType type)
+        {
+            if (Output)
+            {
+                Output.text += (Environment.NewLine + condition);
+            }
+        }
 
         void Test2(string param)
         {
             Debug.Log(param);
+            Counter++;
         }
 
         IEnumerator Test3()
         {
             yield return 1;
-            Debug.Log("3 Coroutine Complete");
+            Counter++;
+            Debug.Log("3 Coroutine");
         }
 
         IEnumerator Test5(UnityTask UnityTask)
         {
             yield return 1;
-            if (UnityTask == null)
-                Debug.LogWarning("wtf");
-            Debug.Log("5 Coroutine with UnityTask State Complete");
+            Counter++;
+            Debug.Log("5 Coroutine with UnityTask");
         }
 
         IEnumerator Test4()
         {
             yield return 1;
-            Debug.Log("4 Coroutine");
+            Counter++;
+        }
+
+        IEnumerator Wait()
+        {
+            yield return new WaitForSeconds(1);
         }
 
         string Test7(string param)
         {
-            param += " Complete";
+            Counter++;
             return param;
         }
 
         IEnumerator Test8(UnityTask<string> UnityTask)
         {
             yield return 1;
-            Debug.Log("8 Coroutine With Result...");
-            //set result or exception
-            UnityTask.Result = "8 Complete";
+            Counter++;
+            UnityTask.Result = "8 Coroutine With Result";
         }
         IEnumerator Test9(UnityTask<string> UnityTask)
         {
             yield return 1;
-            if (UnityTask == null)
-                Debug.LogWarning("wtf");
-
             UnityTask.Result = ("9 Coroutine with UnityTask State Complete");
+            Counter++;
         }
-       
-        
+
+
         void MainTest()
         {
             UnityTask.RunOnMain(() =>
