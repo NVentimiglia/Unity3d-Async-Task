@@ -1,9 +1,10 @@
 using System;
 using System.Collections;
+using UnityEngine;
 
 
 namespace Foundation.Tasks
-{  
+{
     /// <summary>
     /// A task encapsulates future work that may be waited on.
     /// - Support running actions in background threads 
@@ -32,6 +33,7 @@ namespace Foundation.Tasks
         #region public fields
         Func<TResult> _function;
         Delegate _function2;
+
 
         /// <summary>
         /// get the result of the task. Blocking. It is recommended you yield on the wait before accessing this value
@@ -166,6 +168,28 @@ namespace Foundation.Tasks
         #endregion
 
         #region protected methods
+        
+        protected override void OnTaskComplete()
+        {
+            foreach (var d in CompleteList)
+            {
+                if (d != null)
+                    d.DynamicInvoke(this);
+            }
+            CompleteList.Clear();
+
+            if (IsSuccess)
+            {
+                foreach (var d in SuccessList)
+                {
+                    if (d != null)
+                    {
+                        d.DynamicInvoke(Result);
+                    }
+                }
+            }
+            SuccessList.Clear();
+        }
 
         protected override void Execute()
         {
@@ -186,7 +210,7 @@ namespace Foundation.Tasks
                 Exception = ex;
                 Status = TaskStatus.Faulted;
                 if (LogErrors)
-                    UnityEngine.Debug.LogException(ex);
+                    Debug.LogException(ex);
             }
         }
 
@@ -206,7 +230,26 @@ namespace Foundation.Tasks
             }
             else
             {
-                OnComplete.Add(action);
+                CompleteList.Add(action);
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Called after a successful task execution
+        /// </summary>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        public UnityTask<TResult> OnSuccess(Action<TResult> action) 
+        {
+            if (IsCompleted && IsSuccess)
+            {
+                action(Result);
+            }
+            else
+            {
+                SuccessList.Add(action);
             }
 
             return this;
@@ -227,11 +270,9 @@ namespace Foundation.Tasks
             var task = new UnityTask<T>(TaskStrategy.Custom);
             if (IsCompleted)
             {
-                task.Status = Status;
-                task.Exception = Exception;
                 task.Result = func(this);
-                task.Status = Status;
                 task.Exception = Exception;
+                task.Status = Status;
             }
             else
                 TaskManager.StartRoutine(ConvertToAsync(task, func));
@@ -243,11 +284,9 @@ namespace Foundation.Tasks
             while (!IsCompleted)
                 yield return 1;
 
-            task.Status = Status;
-            task.Exception = Exception;
             task.Result = func(this);
-            task.Status = Status;
             task.Exception = Exception;
+            task.Status = Status;
         }
         #endregion
     }

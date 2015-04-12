@@ -107,7 +107,7 @@ namespace Foundation.Tasks
         // ReSharper disable InconsistentNaming
 
         /// <summary>
-        /// Parameter
+        /// Input Parameter
         /// </summary> 
         public object Paramater { get; set; }
 
@@ -120,7 +120,8 @@ namespace Foundation.Tasks
         Delegate _action2;
         protected IEnumerator _routine;
 
-        protected List<Delegate> OnComplete = new List<Delegate>();
+        protected List<Delegate> CompleteList = new List<Delegate>();
+        protected List<Delegate> SuccessList = new List<Delegate>();
 
         #endregion
 
@@ -143,12 +144,7 @@ namespace Foundation.Tasks
         }
 
         public Exception Exception { get; set; }
-
-        public bool HasContinues
-        {
-            get { return OnComplete.Count > 0; }
-        }
-
+        
         #endregion
 
         #region computed properties
@@ -339,7 +335,7 @@ namespace Foundation.Tasks
         {
             Status = TaskStatus.Running;
             await ThreadPool.RunAsync(o => Execute());
-#else     
+#else
         protected void RunOnBackgroundThread()
         {
             Status = TaskStatus.Running;
@@ -386,15 +382,22 @@ namespace Foundation.Tasks
 
         protected virtual void OnTaskComplete()
         {
-            if (OnComplete != null)
+            foreach (var d in CompleteList)
             {
-                foreach (var d in OnComplete)
+                if (d != null)
+                    d.DynamicInvoke(this);
+            }
+            CompleteList.Clear();
+
+            if (IsSuccess)
+            {
+                foreach (var d in SuccessList)
                 {
                     if (d != null)
-                        d.DynamicInvoke(this);
+                        d.DynamicInvoke();
                 }
-                OnComplete.Clear();
             }
+            SuccessList.Clear();
         }
 
         protected void OnRoutineComplete()
@@ -443,7 +446,7 @@ namespace Foundation.Tasks
 #endif
             }
         }
-        
+
         /// <summary>
         /// will throw if faulted
         /// </summary>
@@ -463,7 +466,7 @@ namespace Foundation.Tasks
         public async static void Delay(int millisecondTimeout)
         {
             await System.Threading.Tasks.Task.Delay(TimeSpan.FromMilliseconds(millisecondTimeout));
-#else      
+#else
         public static void Delay(int millisecondTimeout)
         {
             Thread.Sleep(millisecondTimeout);
@@ -478,21 +481,10 @@ namespace Foundation.Tasks
             _action = null;
             _action2 = null;
             _routine = null;
-            OnComplete = null;
-            _action = null;
+            CompleteList.Clear();
+            SuccessList.Clear();
         }
 
-        public virtual void Reset()
-        {
-            Status = TaskStatus.Created;
-            Paramater = null;
-            Exception = null;
-            _action = null;
-            _action2 = null;
-            _routine = null;
-            OnComplete = null;
-            _action = null;
-        }
         #endregion
 
         #region wait
@@ -502,7 +494,7 @@ namespace Foundation.Tasks
         /// <returns></returns>
         public IEnumerator WaitRoutine()
         {
-            while (IsRunning || HasContinues)
+            while (IsRunning)
             {
                 yield return 1;
             }
@@ -520,7 +512,7 @@ namespace Foundation.Tasks
 
             Delay(10);
 
-            while (IsRunning || HasContinues)
+            while (IsRunning)
             {
                 Delay(10);
             }
@@ -543,27 +535,28 @@ namespace Foundation.Tasks
             }
             else
             {
-                OnComplete.Add(action);
+                CompleteList.Add(action);
             }
             return this;
         }
 
         /// <summary>
-        /// Called after the task is complete
+        /// Called after a successful task execution
         /// </summary>
         /// <param name="action"></param>
         /// <returns></returns>
-        public T ContinueWith<T>(Action<T> action) where T : UnityTask
+        public UnityTask OnSuccess(Action action)
         {
-            if (IsCompleted)
+            if (IsCompleted && IsSuccess)
             {
-                action(this as T);
+                action();
             }
             else
             {
-                OnComplete.Add(action);
+                SuccessList.Add(action);
             }
-            return this as T;
+
+            return this;
         }
         #endregion
     }
