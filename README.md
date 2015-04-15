@@ -29,8 +29,7 @@ Drop the Foundation.Tasks.dll into your plug in folder
 ## Use
 
 ####Run
-Tasks have a static factory "Run" method which will create a new task in that started state. This method has overrides for every conscionable situation.
-You may also construct a task yourself and start it yourself.
+Tasks have a static factory "Run" method which will create a new task in that started state. This method has overrides for most every situation. You may also construct a task yourself and start it yourself.
 
 ####Strategy
 Tasks have a number of strategies you can choose from.
@@ -45,16 +44,17 @@ ContinueWith is a extension method which allows you to execute a piece of code a
 as a way to populate the Result property. You may chain multiple continue with's
 
 ####Wait
-- Wait will hault the thread until the task is complete. Only call this from a background thread. DO NO CALL THIS IN THE MAIN THREAD.
+- Wait will halt the thread until the task is complete. Only call this from a background thread. DO NO CALL THIS IN THE MAIN THREAD.
 - WaitRoutine is a Coroutine that you may start. This routine will continue until the task is complete. Use this in the main thread.
 
 ####TaskManager
 The task manager is a monobehaviours which interfaces the task's with unity. It is responsible for executing on the main thread and running coroutines.
-You dont need to add this object to your scene, it is added automatically.
+You don't need to add this object to your scene, it is added automatically.
 
 ####Exceptions
-To set the task to the faulted state in an action simply throw an exception. The exception will be saved in the Task.Exception property. For coroutines you will need to set the task state and exception manually (as exception handeling in coroutines is limmited.
-```c#
+To set the task to the faulted state in an action simply throw an exception. The exception will be saved in the Task.Exception property. For coroutines you will need to set the task state and exception manually (as exception handling in coroutines is limited.
+
+````
 //Pass in an action, function, method or coroutine
 var task = UnityTask.Run(() =>
 {
@@ -86,7 +86,7 @@ Tasks are long running processes,  so you should use tasks from a coroutine some
 
 For example lets take a login task
 
-`````c#
+````
 
 public class AccountMenu : Monobehaviour    {
 	
@@ -105,11 +105,11 @@ public class AccountMenu : Monobehaviour    {
 
 	}
 }
-`````
+````
 
 In the above example the AccountService would be returning a Task of some sort. Internally, it could be a action running in a background thread or a coroutine on the unity thread.
 
-`````c#
+````
 public class AccountService     {
 	
 	public UnityTask<bool> Login(){
@@ -128,7 +128,7 @@ public class AccountService     {
 		// manually set result / state
 	}
 }
-`````
+````
 
 ## Custom Strategy Example
 The Custom strategy is used when you want to return a task without wrapping a action or coroutine. Here are two examples
@@ -136,7 +136,7 @@ The Custom strategy is used when you want to return a task without wrapping a ac
 #### Failed Sanity Check
 For instance if the method fails a sanity check I will return a custom task in the faulted state and set the exception message manually. I figure this is less overhead than spinning up a background thread and throwing it.
 
-`````c#
+````
 void Login(string username){
 	return new UnityTask(TaskStrategy.Custom) {
 		Status = TaskStatus.Faulted,
@@ -146,12 +146,12 @@ void Login(string username){
 	//or extension method
 	return Task.FailedTask("Invalid Username");
 }
-`````
+````
     
 #### Returning a Task without wrapping a method 
 I also use the custom strategy when I need to return a task but the internal method uses an arbitrary callback - such as in the case of UnityNetworking.
 
-`````c#
+````
 UnityTask<bool> ConnectTask;
 void Awake(){
 	ConnectTask = new UnityTask<bool>(TaskStrategy.Custom);
@@ -169,13 +169,14 @@ void OnConnectedToServer(){
 }
 
 // todo fail and timeout for the connect task
-`````
+
+````
 
 
 ## Kitchen Sink Examples
 
-```c#
 
+````
 // Assume running from a coroutine
 
 //Turn an action into a waitable background task
@@ -236,7 +237,7 @@ UnityTask.RunCoroutine<string>(RoutineFunction());
 IEnumerator RoutineFunction(UnityTask<string> task){
 	//manually set State / Exception / Result
 }
-```
+````
 
 ## More
 
