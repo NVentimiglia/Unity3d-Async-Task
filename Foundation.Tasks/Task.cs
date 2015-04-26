@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 #if UNITY_WSA
 using Windows.System.Threading;
-#else
+#elif !UNITY_WEBGL
 using System.Threading;
 #endif
 
@@ -463,15 +463,21 @@ namespace Foundation.Tasks
         /// </summary>
         /// <param name="millisecondTimeout"></param>
 #if UNITY_WSA
-        public async static void Delay(int millisecondTimeout)
+        public async static System.Threading.Tasks.Task Delay(int millisecondTimeout)
         {
             await System.Threading.Tasks.Task.Delay(TimeSpan.FromMilliseconds(millisecondTimeout));
+        }
+#elif UNITY_WEBGL
+        public static void Delay(int millisecondTimeout)
+        {
+            Debug.LogError("Delay not supported on WebGL");
+        }
 #else
         public static void Delay(int millisecondTimeout)
         {
             Thread.Sleep(millisecondTimeout);
-#endif
         }
+#endif
 
         public virtual void Dispose()
         {

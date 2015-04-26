@@ -41,6 +41,7 @@
     <Compile Include="Task.cs" />
     <Compile Include="TaskFactory.cs" />
     <Compile Include="TaskManager.cs" />
+    <Compile Include="TaskManager.Net.cs" />
     <Compile Include="TaskTResult.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

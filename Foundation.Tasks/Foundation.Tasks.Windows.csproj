@@ -52,6 +52,9 @@
       <HintPath>..\..\..\..\..\..\..\Program Files\Unity\Editor\Data\PlaybackEngines\wp8support\Managed\WinRTLegacy.dll</HintPath>
     </Reference>
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="TaskManager.WSA.cs" />
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

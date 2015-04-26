@@ -2,10 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-#if !Windows
-using System.Threading;
-#endif
-
 namespace Foundation.Tasks
 {
     /// <summary>
@@ -16,7 +12,7 @@ namespace Foundation.Tasks
     /// </remarks>
     [AddComponentMenu("Foundation/TaskManager")]
     [ExecuteInEditMode]
-    public class TaskManager : MonoBehaviour
+    public partial class TaskManager : MonoBehaviour
     {
 
         #region sub
@@ -50,28 +46,7 @@ namespace Foundation.Tasks
             public Action OnComplete;
         }
         #endregion
-
-        /// <summary>
-        /// Checks if this is the main thread
-        /// </summary>
-        public static bool IsMainThread
-        {
-#if UNITY_WSA
-            get { return Environment.CurrentManagedThreadId == MainThread; }
-#else
-            get { return Thread.CurrentThread == MainThread; }
-#endif
-        }
-
-        /// <summary>
-        /// The Main Thread
-        /// </summary>
-#if UNITY_WSA
-        public static int MainThread { get; protected set; }
-#else
-        public static Thread MainThread { get; protected set; }
-#endif
-          
+        
         /// <summary>
         /// Static Accessor
         /// </summary>
@@ -105,11 +80,7 @@ namespace Foundation.Tasks
                 DontDestroyOnLoad(go);
                 _instance = go.AddComponent<TaskManager>();
 
-#if UNITY_WSA
-                MainThread = Environment.CurrentManagedThreadId;
-#else
-                MainThread = Thread.CurrentThread;
-#endif
+                MainThread = CurrentThread;
             }
 
         }

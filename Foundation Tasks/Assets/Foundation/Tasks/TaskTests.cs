@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using UnityEditor.VersionControl;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -126,6 +125,7 @@ namespace Foundation.Tasks
         IEnumerator Test4()
         {
             yield return 1;
+            Debug.Log("4 Coroutine");
             Counter++;
         }
 
