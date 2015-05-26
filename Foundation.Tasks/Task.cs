@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 #if UNITY_WSA
 using Windows.System.Threading;
@@ -136,8 +137,7 @@ namespace Foundation.Tasks
                 if (_status == value)
                     return;
                 _status = value;
-
-
+                
                 if (IsCompleted)
                     OnTaskComplete();
             }
@@ -500,7 +500,7 @@ namespace Foundation.Tasks
         /// <returns></returns>
         public IEnumerator WaitRoutine()
         {
-            while (IsRunning)
+            while (IsRunning || CompleteList.Count > 0)
             {
                 yield return 1;
             }
@@ -518,7 +518,7 @@ namespace Foundation.Tasks
 
             Delay(10);
 
-            while (IsRunning)
+            while (IsRunning || CompleteList.Count > 0)
             {
                 Delay(10);
             }

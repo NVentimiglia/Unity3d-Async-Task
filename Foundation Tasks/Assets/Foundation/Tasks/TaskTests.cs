@@ -58,15 +58,18 @@ namespace Foundation.Tasks
                 Counter++;
                 Debug.Log("5 Continued");
             });
+
             yield return StartCoroutine(t5.WaitRoutine());
             Assert(() => Counter == 7,7);
             yield return new WaitForSeconds(1);
 
-            UnityTask.Run(() => { return "6 Run with Result And Continue"; }).ContinueWith(t => { Counter++; Debug.Log(t.Result); });
+            var t6 = UnityTask.Run(() => { return "6 Run with Result And Continue"; }).ContinueWith(t => { Counter++; Debug.Log(t.Result); });
+            yield return StartCoroutine(t6.WaitRoutine());
             Assert(() => Counter == 8,8);
             yield return new WaitForSeconds(1);
 
-            UnityTask.Run<string, string>(Test7, "7 Run with Param and Result And Continue").ContinueWith(t => { Counter++; Debug.Log(t.Result); });
+            var t7 = UnityTask.Run<string, string>(Test7, "7 Run with Param and Result And Continue").ContinueWith(t => { Counter++; Debug.Log(t.Result); });
+            yield return StartCoroutine(t7.WaitRoutine());
             yield return new WaitForSeconds(1);
             Assert(() => Counter == 10, 10);
 
