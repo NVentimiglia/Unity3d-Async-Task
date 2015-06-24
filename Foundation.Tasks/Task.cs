@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 #if UNITY_WSA
 using Windows.System.Threading;
@@ -544,6 +543,24 @@ namespace Foundation.Tasks
                 CompleteList.Add(action);
             }
             return this;
+        } 
+        
+        /// <summary>
+        /// Called after the task is complete
+        /// </summary>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        public K ContinueWith<K>(Action<K> action) where K : UnityTask
+        {
+            if (IsCompleted)
+            {
+                action((K)this);
+            }
+            else
+            {
+                CompleteList.Add(action);
+            }
+            return (K)this;
         }
 
         /// <summary>
