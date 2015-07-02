@@ -149,7 +149,7 @@ namespace Foundation.Tasks
         #region computed properties
         public bool IsRunning
         {
-            get { return !IsCompleted; }
+            get { return Status == TaskStatus.Running; }
         }
 
         public bool IsCompleted
